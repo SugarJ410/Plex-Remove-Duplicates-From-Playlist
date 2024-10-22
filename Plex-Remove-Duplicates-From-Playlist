@@ -1,0 +1,39 @@
+from plexapi.server import PlexServer
+
+# Plex server details (using the provided values)
+PLEX_URL = "http://0.0.0.0:32400"
+PLEX_TOKEN = "Your-Password"
+
+# Playlist title and library details
+PLAYLIST_TITLE = "YOUR-PLAYLIST-TITLE"  # Your playlist title
+LIBRARY_ID = 00  # Your library ID that the playlist is a part of
+
+# Connect to the Plex server
+plex = PlexServer(PLEX_URL, PLEX_TOKEN)
+
+# Find the playlist by title
+playlist = None
+for pl in plex.playlists():
+    if pl.title == PLAYLIST_TITLE:
+        playlist = pl
+        break
+
+if not playlist:
+    print(f"Playlist with title '{PLAYLIST_TITLE}' not found.")
+else:
+    # Dictionary to store song titles and track IDs
+    track_titles = {}
+
+    # Loop through playlist items and track duplicates
+    for track in playlist.items():
+        title = track.title
+
+        if title in track_titles:
+            # Remove duplicate track
+            print(f"Removing duplicate: {title}")
+            playlist.removeItem(track)
+        else:
+            # Store track ID in dictionary
+            track_titles[title] = track.ratingKey
+
+    print("Duplicates removed successfully!")
