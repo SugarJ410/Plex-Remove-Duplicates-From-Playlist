@@ -1,12 +1,12 @@
+import random
 from plexapi.server import PlexServer
 
-# Plex server details
-PLEX_URL = "http://your_ip_here:32400"  # Replace with your Plex server IP address
-PLEX_TOKEN = "your_token_here"        # Replace with your Plex token
+# Plex server details - replace with your actual server URL and token
+PLEX_URL = "http://<YOUR_PLEX_SERVER_IP>:32400"  # e.g., "http://192.168.1.10:32400"
+PLEX_TOKEN = "<YOUR_PLEX_TOKEN>"                # Your Plex token
 
-# Playlist title and library details
-PLAYLIST_TITLE = "your_playlist_title_here"  # Your playlist title
-LIBRARY_ID = 00  # Your library ID that the playlist is a part of
+# Playlist title - replace with your actual playlist title
+PLAYLIST_TITLE = "<YOUR_PLAYLIST_TITLE>"         # e.g., "My Playlist"
 
 # Connect to the Plex server
 plex = PlexServer(PLEX_URL, PLEX_TOKEN)
@@ -21,19 +21,29 @@ for pl in plex.playlists():
 if not playlist:
     print(f"Playlist with title '{PLAYLIST_TITLE}' not found.")
 else:
-    # Dictionary to store song titles and track IDs
+    # Dictionary to store unique song titles
     track_titles = {}
+    unique_tracks = []
 
-    # Loop through playlist items and track duplicates
+    # Loop through playlist items to find duplicates
     for track in playlist.items():
         title = track.title
 
-        if title in track_titles:
-            # Remove duplicate track
-            print(f"Removing duplicate: {title}")
-            playlist.removeItem(track)
-        else:
-            # Store track ID in dictionary
+        if title not in track_titles:
+            # Track is unique
+            unique_tracks.append(track)
             track_titles[title] = track.ratingKey
+        else:
+            # Track is a duplicate
+            print(f"Identified duplicate: {title}")
 
-    print("Duplicates removed successfully!")
+    # Clear the existing playlist
+    playlist.removeItems(playlist.items())
+
+    # Shuffle the unique tracks
+    random.shuffle(unique_tracks)
+
+    # Add shuffled unique tracks back to the playlist
+    playlist.addItems(unique_tracks)
+
+    print(f"Removed duplicates and shuffled playlist '{PLAYLIST_TITLE}' successfully!")
